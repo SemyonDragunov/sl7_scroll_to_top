@@ -1,0 +1,10 @@
+name = Наверх
+description = Кнопка для прокрутки экрана в наверх.
+package = SL7
+version = 7.x-1.0
+core = 7.x
+
+configure = admin/control-panel/settings/scroll-to-top
+
+dependencies[] = sl7_control_panel
+dependencies[] = jquery_update

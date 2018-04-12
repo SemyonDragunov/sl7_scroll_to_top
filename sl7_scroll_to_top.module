@@ -1,0 +1,259 @@
+<?php
+
+/**
+ * @author Semyon Dragunov <sam.dragunov@gmail.com>
+ * https://github.com/SemyonDragunov
+ */
+
+define('SL7_SCROLL_TO_TOP_ADMIN_PATH', SL7_CONTROL_PANEL_ADMIN_PATH . '/apps/scroll-to-top');
+
+/**
+ * Implement hook_menu().
+ */
+function sl7_scroll_to_top_menu() {
+
+  $items[SL7_SCROLL_TO_TOP_ADMIN_PATH] = array(
+    'title' => 'Наверх',
+    'description' => 'Настройки отображения кнопки.',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('sl7_scroll_to_top_settings_form'),
+    'access arguments' => array('administer sl7_scroll_to_top'),
+  );
+
+  return $items;
+}
+
+/**
+ * Implement hook_permission().
+ */
+function sl7_scroll_to_top_permission() {
+  return array(
+    'administer sl7_scroll_to_top' => array(
+      'title' => 'Доступ к настройкам кнопки.',
+    )
+  );
+}
+
+/**
+ * Implements hook_theme().
+ */
+function sl7_scroll_to_top_theme() {
+  $items = array(
+    'sl7_scroll_to_top__default' => array(),
+    'sl7_scroll_to_top__line' => array(),
+  );
+
+  foreach ($items as &$item) {
+    if (!isset($item['file'])) {
+      $item['file'] = 'templates/theme.inc';
+    }
+  }
+
+  return $items;
+}
+
+/**
+ * Implements hook_sl7_scroll_to_top_theme().
+ */
+function sl7_scroll_to_top_sl7_scroll_to_top_theme() {
+  $path = drupal_get_path('module', 'sl7_scroll_to_top');
+
+  $themes['sl7_default'] = array(
+    'title' => 'Стандартный',
+    'theme' => 'sl7_scroll_to_top__default',
+    'settings' => 'sl7_scroll_to_top_theme_default_settings',
+    'js' => $path . '/js/sl7_scroll_to_top.js',
+    'css' => $path . '/css/sl7_scroll_to_top__default.css',
+    'img' => $path . '/img/sl7_scroll_to_top__default.png',
+  );
+
+  $themes['sl7_line'] = array(
+    'title' => 'Вертикальная линия',
+    'theme' => 'sl7_scroll_to_top__default',
+    'settings' => 'sl7_scroll_to_top_theme_line_settings',
+    'js' => $path . '/js/sl7_scroll_to_top.js',
+    'css' => $path . '/css/sl7_scroll_to_top__line.css',
+    'img' => $path . '/img/sl7_scroll_to_top__line.png',
+  );
+
+  return $themes;
+}
+
+function sl7_scroll_to_top_theme_line_settings($default_value) {
+
+  $form['side'] = array(
+    '#type' => 'select',
+    '#title' => 'Сторона отображения',
+    '#options' => array(
+      'left' => 'Слева',
+      'right' => 'Справа',
+    ),
+    '#default_value' => isset($default_value['side']) ? array($default_value['side']) : array('left'),
+  );
+
+  return $form;
+}
+
+function sl7_scroll_to_top_theme_default_settings($default_value) {
+
+  $form['style'] = array(
+    '#type' => 'select',
+    '#title' => 'Стиль',
+    '#options' => array(
+      'circle' => 'Круг',
+      'square' => 'Квадрат',
+      'round' => 'Квадрат с закруглёнными углами',
+    ),
+    '#default_value' => isset($default_value['style']) ? array($default_value['style']) : array('circle'),
+  );
+
+  $form['side'] = array(
+    '#type' => 'select',
+    '#title' => 'Сторона отображения',
+    '#options' => array(
+      'left' => 'Слева',
+      'right' => 'Справа',
+    ),
+    '#default_value' => isset($default_value['side']) ? array($default_value['side']) : array('left'),
+  );
+
+  return $form;
+}
+
+/**
+ * Получить информацию о шаблоне.
+ *
+ * @param null $theme
+ *  Ничего или название шаблона.
+ * @return array
+ *  Если аргумента $theme не пуст, вернётся массив с информацией о шаблоне.
+ *  Если аргумент пустой, то массив всех типов шаблонов, где ключ - это
+ *  название шаблона, а значение - массив с информацией о шаблоне.
+ */
+function sl7_scroll_to_top_get_theme_info($theme = NULL) {
+  $theme_info = &drupal_static(__FUNCTION__);
+
+  if (!isset($theme_info)) {
+    $theme_info = module_invoke_all('sl7_scroll_to_top_theme');
+
+    foreach ($theme_info as $name => $info) {
+      $theme_info[$name] += array(
+        'settings' => FALSE,
+        'js' => FALSE,
+        'css' => FALSE,
+      );
+    }
+  }
+
+  drupal_alter(__FUNCTION__, $theme_info);
+
+  if (array_key_exists($theme, $theme_info)) {
+    return $theme_info[$theme];
+  }
+
+  return $theme_info;
+}
+
+/**
+ * Получить список шаблонов.
+ *
+ * @param null $theme
+ *  Ничего или название шаблона.
+ * @return array
+ *  Если аргумента $theme не пуст, вернёться человекопонятное название.
+ *  Если аргумент пустой, то массив всех типов шаблонов, где ключ - это
+ *  название шаблона, а значение - человекопонятное название.
+ */
+function sl7_scroll_to_top_get_theme_name($theme = NULL) {
+  $theme_info = sl7_scroll_to_top_get_theme_info();
+  $theme_all = array();
+
+  foreach ($theme_info as $name => $payment) {
+    $theme_all[$name] = $payment['title'];
+  }
+
+  if (array_key_exists($theme, $theme_all)) {
+    return $theme_all[$theme];
+  }
+
+  return $theme_all;
+}
+
+/**
+ * Implements hook_page_build().
+ */
+function sl7_scroll_to_top_page_build(&$page) {
+  $theme_info = sl7_scroll_to_top_get_theme_info(variable_get('sl7_scroll_to_top_theme', 'sl7_default'));
+
+  if (!path_is_admin(current_path())) {
+    $page['page_bottom']['sl7_scroll_to_top'] = array(
+      '#markup' => theme($theme_info['theme']),
+    );
+
+    if ($theme_info['css'])
+      $page['page_bottom']['sl7_scroll_to_top']['#attached']['css'][] = $theme_info['css'];
+
+    if ($theme_info['js'])
+      $page['page_bottom']['sl7_scroll_to_top']['#attached']['js'][] = $theme_info['js'];
+  }
+}
+
+function sl7_scroll_to_top_settings_form($form, &$form_state) {
+  $theme_info = sl7_scroll_to_top_get_theme_info(variable_get('sl7_scroll_to_top_theme', 'sl7_default'));
+
+  $theme = isset($form_state['values']['theme']) ? $form_state['values']['theme'] : '';
+
+  if (!empty($theme)) {
+    $theme_info = sl7_scroll_to_top_get_theme_info($theme);
+  }
+
+  $form['#tree'] = TRUE;
+
+  $form['theme'] = array(
+    '#type' => 'select',
+    '#title' => 'Шаблон',
+    '#options' => sl7_scroll_to_top_get_theme_name(),
+    '#default_value' => variable_get('sl7_scroll_to_top_theme', 'sl7_default'),
+    '#ajax' => array(
+      'event' => 'change',
+      'wrapper' => 'theme-preview',
+      'callback' => 'sl7_scroll_to_top_theme_preview_ajax_callback',
+      'method' => 'replace',
+      'progress' => array('type' => 'none'),
+    ),
+  );
+  $form['theme_wrapper'] = array(
+    '#prefix' => '<div id="theme-preview">',
+    '#suffix' => '</div>',
+  );
+  $form['theme_wrapper']['theme_preview'] = array(
+    '#markup' => '<img src="/' . $theme_info['img'] . '" />',
+  );
+  if ($theme_info['settings']) {
+    $form['theme_wrapper']['settings'] = call_user_func_array($theme_info['settings'], array(variable_get('sl7_scroll_to_top_theme_settings')));
+  }
+
+  $form['actions'] = array('#type' => 'actions');
+
+  $form['actions']['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Сохранить',
+    '#weight' => 999,
+  );
+
+  return $form;
+}
+
+function sl7_scroll_to_top_settings_form_submit($form, &$form_state) {
+  form_state_values_clean($form_state);
+
+  if ($form_state['values']['theme_wrapper']['settings']) {
+    variable_set('sl7_scroll_to_top_theme_settings', $form_state['values']['theme_wrapper']['settings']);
+  }
+  variable_set('sl7_scroll_to_top_theme', $form_state['values']['theme']);
+  drupal_set_message(t('The configuration options have been saved.'));
+}
+
+function sl7_scroll_to_top_theme_preview_ajax_callback($form, &$form_state) {
+  return $form['theme_wrapper'];
+}

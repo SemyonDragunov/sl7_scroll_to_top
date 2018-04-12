@@ -1,0 +1,47 @@
+@import "../bower_components/bourbon/app/assets/stylesheets/bourbon";
+@import "../bower_components/susy/sass/susy";
+
+$phone-only-breakpoint: (
+  max-width: 767px,
+);
+
+$phone-to-big-breakpoint: (
+  min-width: 768px,
+  max-width: 1200px,
+);
+
+#scroll-to-top {
+  @include size(50px 100%);
+  @include transition(all 0.3s ease-in-out);
+  background: transparent url("../img/arrow-black.png") no-repeat scroll center center / 50% auto;
+  position: fixed;
+  display: none;
+  cursor: pointer;
+  top: 0;
+  bottom: 0;
+  z-index: 500;
+
+  &:hover,
+  &:focus {
+    background-color: rgba(0, 0, 0, 0.5);
+    background-image: url("../img/arrow-white.png");
+  }
+
+  @include susy-breakpoint($phone-only-breakpoint) {
+    display: none !important;
+    opacity: 0 !important;
+  }
+
+  @include susy-breakpoint($phone-to-big-breakpoint) {
+    display: none !important;
+    opacity: 0 !important;
+  }
+
+  &[data-side=left] {
+    left: 0;
+  }
+
+  &[data-side=right] {
+    right: 0;
+  }
+}
