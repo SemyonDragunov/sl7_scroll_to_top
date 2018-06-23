@@ -11,7 +11,7 @@
 Требуемые модули от SL7:
 * [sl7_control_panel](https://github.com/SemyonDragunov/sl7_control_panel)
 
-Для Drupal 7. PHP =< 5.4
+Для Drupal 7. PHP >= 5.4 & 7.
 
 Для продолжения разработки css смотрите bower.json
 
@@ -35,7 +35,7 @@ Button to scroll the screen to the top.
 Required modules from SL7:
 * [sl7_control_panel](https://github.com/SemyonDragunov/sl7_control_panel)
 
-For Drupal 7. PHP =< 5.4
+For Drupal 7. PHP >= 5.4 & 7.
 
 To continue developing css, see bower.json
 
